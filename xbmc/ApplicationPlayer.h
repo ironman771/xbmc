@@ -175,6 +175,7 @@ public:
   bool  SwitchChannel(const PVR::CPVRChannelPtr &channel);
   void  SetSpeed(float speed);
   bool SupportsTempo();
+	void ResetPlayerSpeed();    // ironman771 : Reset player speed and "wait" until speed will be 1
 
   protected:
     std::shared_ptr<IPlayer> GetInternal() const;

@@ -136,44 +136,51 @@ static int PlayerControl(const std::vector<std::string>& params)
   {
     g_application.StopPlaying();
   }
-  else if (paramlow =="rewind" || paramlow == "forward")
-  {
-    if (g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPaused())
-    {
-      float playSpeed = g_application.m_pPlayer->GetPlaySpeed();
-      if (playSpeed >= 0.75 && playSpeed <= 1.55)
-        playSpeed = 1;
+	else if (paramlow == "forward") {			  // ironman771 : paramlow == "forward" totaly rewrite.
+		float playSpeed = g_application.m_pPlayer->GetPlaySpeed();
+		int FF_REW_steps_count = sizeof(FF_REW_steps) / sizeof(FF_REW_steps[0]);
 
-      if (paramlow == "rewind" && playSpeed == 1) // Enables Rewinding
-        playSpeed *= -2;
-      else if (paramlow == "rewind" && playSpeed > 1) //goes down a notch if you're FFing
-        playSpeed /= 2;
-      else if (paramlow == "forward" && playSpeed < 1) //goes up a notch if you're RWing
-      {
-        playSpeed /= 2;
-        if (playSpeed == -1)
-          playSpeed = 1;
-      }
-      else
-        playSpeed *= 2;
+		if (playSpeed >= FF_REW_steps[FF_REW_steps_count - 1]) {
+			playSpeed = 1;
+		}
+		else {
+			for (int i = 0; i < FF_REW_steps_count; i++) {
+				if (FF_REW_steps[i] >= playSpeed + 0.05) {
+					playSpeed = FF_REW_steps[i];
+					break;
+				}
+			}
+		}
+		g_application.m_pPlayer->SetPlaySpeed(playSpeed);
+	}
+	else if (paramlow == "rewind") {       // ironman771 : paramlow == "rewind" totaly rewrite.
+		float playSpeed = g_application.m_pPlayer->GetPlaySpeed();
+		int FF_REW_steps_count = sizeof(FF_REW_steps) / sizeof(FF_REW_steps[0]);
 
-      if (playSpeed > 32 || playSpeed < -32)
-        playSpeed = 1;
-
-      g_application.m_pPlayer->SetPlaySpeed(playSpeed);
-    }
-  }
+		if (playSpeed <= FF_REW_steps[0]) {
+			playSpeed = 1;
+		}
+		else {
+			for (int i = FF_REW_steps_count - 1; i >= 0; i--) {
+				if (FF_REW_steps[i] <= playSpeed - 0.05) {
+					playSpeed = FF_REW_steps[i];
+					break;
+				}
+			}
+		}
+		g_application.m_pPlayer->SetPlaySpeed(playSpeed);;
+	}
   else if (paramlow =="tempoup" || paramlow == "tempodown")
   {
     if (g_application.m_pPlayer->SupportsTempo() &&
         g_application.m_pPlayer->IsPlaying() && !g_application.m_pPlayer->IsPaused())
     {
       float playSpeed = g_application.m_pPlayer->GetPlaySpeed();
-      if (playSpeed >= 0.75 && playSpeed <= 1.55)
+			if (playSpeed >= (MINSPEEDWITHAUDIO - 0.05) && playSpeed <= (MAXSPEEDWITHAUDIO + 0.05))    // ironman771 : it was (playSpeed >= 0.75 && playSpeed <= 1.55)
       {
-        if (paramlow == "tempodown" && playSpeed > 0.85)
+				if (paramlow == "tempodown" && playSpeed > (MINSPEEDWITHAUDIO + 0.05))   // ironman771 : it was (paramlow == "tempodown" && playSpeed > 0.85)
           playSpeed -= 0.1;
-        else if (paramlow == "tempoup" && playSpeed < 1.45)
+				else if (paramlow == "tempoup" && playSpeed < (MAXSPEEDWITHAUDIO - 0.05))   // ironman771 : it was (paramlow == "tempoup" && playSpeed < 1.45)
           playSpeed += 0.1;
 
         playSpeed = floor(playSpeed * 100 + 0.5) / 100;

@@ -35,9 +35,10 @@
 #include <sstream>
 #include <iomanip>
 #include <math.h>
+#include "Application.h"   // ironman771 : include for new ALLOW_AUDIO
 
 // allow audio for slow and fast speeds (but not rewind/fastforward)
-#define ALLOW_AUDIO(speed) ((speed) > 5*DVD_PLAYSPEED_NORMAL/10 && (speed) <= 15*DVD_PLAYSPEED_NORMAL/10)
+#define ALLOW_AUDIO(speed) ((speed) >= DVD_PLAYSPEED_NORMAL*MINSPEEDWITHAUDIO && (speed) <= DVD_PLAYSPEED_NORMAL*MAXSPEEDWITHAUDIO)  // ironman771 : new ALLOW_AUDIO(speed)
 
 class CDVDMsgAudioCodecChange : public CDVDMsg
 {

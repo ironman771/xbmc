@@ -248,8 +248,18 @@ void CApplicationPlayer::SetVolume(float volume)
     player->SetVolume(volume);
 }
 
+void CApplicationPlayer::ResetPlayerSpeed()    // ironman771 : NEW function: Reset player speed and "wait" until speed will be 1
+{
+	if (GetPlaySpeed() != 1.0) {
+		SetPlaySpeed(1);
+		while (GetPlaySpeed() != 1.0) {}
+	}
+}
+
 void CApplicationPlayer::Seek(bool bPlus, bool bLargeStep, bool bChapterOverride)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   if (player)
     player->Seek(bPlus, bLargeStep, bChapterOverride);
@@ -257,6 +267,8 @@ void CApplicationPlayer::Seek(bool bPlus, bool bLargeStep, bool bChapterOverride
 
 void CApplicationPlayer::SeekPercentage(float fPercent)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   if (player)
     player->SeekPercentage(fPercent);
@@ -276,12 +288,16 @@ bool CApplicationPlayer::CanSeek()
 
 bool CApplicationPlayer::SeekScene(bool bPlus)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   return (player && player->SeekScene(bPlus));
 }
 
 void CApplicationPlayer::SeekTime(int64_t iTime)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   if (player)
     player->SeekTime(iTime);
@@ -289,6 +305,8 @@ void CApplicationPlayer::SeekTime(int64_t iTime)
 
 void CApplicationPlayer::SeekTimeRelative(int64_t iTime)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   if (player)
   {
@@ -689,6 +707,8 @@ void CApplicationPlayer::GetSubtitleCapabilities(std::vector<int> &subCaps)
 
 int  CApplicationPlayer::SeekChapter(int iChapter)
 {
+	ResetPlayerSpeed();    // ironman771 : Reset player speed to 1
+
   std::shared_ptr<IPlayer> player = GetInternal();
   if (player)
     return player->SeekChapter(iChapter);

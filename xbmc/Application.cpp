@@ -2240,29 +2240,42 @@ bool CApplication::OnAction(const CAction &action)
     }
     if (!m_pPlayer->IsPaused())
     {
-      if (action.GetID() == ACTION_PLAYER_FORWARD || action.GetID() == ACTION_PLAYER_REWIND)
-      {
-        float playSpeed = m_pPlayer->GetPlaySpeed();
-        if (playSpeed >= 0.75 && playSpeed <= 1.55)
-          playSpeed = 1;
+			if (action.GetID() == ACTION_PLAYER_FORWARD) {			// ironman771 : ACTION_PLAYER_FORWARD and ACTION_PLAYER_REWIND totaly rewrite.
+				float playSpeed = m_pPlayer->GetPlaySpeed();
+				int FF_REW_steps_count = sizeof(FF_REW_steps) / sizeof(FF_REW_steps[0]);
 
-        if (action.GetID() == ACTION_PLAYER_REWIND && (playSpeed == 1)) // Enables Rewinding
-          playSpeed *= -2;
-        else if (action.GetID() == ACTION_PLAYER_REWIND && playSpeed > 1) //goes down a notch if you're FFing
-          playSpeed /= 2;
-        else if (action.GetID() == ACTION_PLAYER_FORWARD && playSpeed < 1) //goes up a notch if you're RWing
-          playSpeed /= 2;
-        else
-          playSpeed *= 2;
+				if (playSpeed >= FF_REW_steps[FF_REW_steps_count - 1]) {
+					playSpeed = 1;
+				}
+				else {
+					for (int i = 0; i < FF_REW_steps_count; i++) {
+						if (FF_REW_steps[i] >= playSpeed + 0.05) {
+							playSpeed = FF_REW_steps[i];
+							break;
+						}
+					}
+				}
+				m_pPlayer->SetPlaySpeed(playSpeed);
+				return true;
+			}
+			else if (action.GetID() == ACTION_PLAYER_REWIND) {   // ironman771 : ACTION_PLAYER_FORWARD and ACTION_PLAYER_REWIND totaly rewrite.
+				float playSpeed = m_pPlayer->GetPlaySpeed();
+				int FF_REW_steps_count = sizeof(FF_REW_steps) / sizeof(FF_REW_steps[0]);
 
-        if (action.GetID() == ACTION_PLAYER_FORWARD && playSpeed == -1) //sets iSpeed back to 1 if -1 (didn't plan for a -1)
-          playSpeed = 1;
-        if (playSpeed > 32 || playSpeed < -32)
-          playSpeed = 1;
-
-        m_pPlayer->SetPlaySpeed(playSpeed);
-        return true;
-      }
+				if (playSpeed <= FF_REW_steps[0]) {
+					playSpeed = 1;
+				}
+				else {
+					for (int i = FF_REW_steps_count - 1; i >= 0; i--) {
+						if (FF_REW_steps[i] <= playSpeed - 0.05) {
+							playSpeed = FF_REW_steps[i];
+							break;
+						}
+					}
+				}
+				m_pPlayer->SetPlaySpeed(playSpeed);
+				return true;
+			}
       else if ((action.GetAmount() || m_pPlayer->GetPlaySpeed() != 1) && (action.GetID() == ACTION_ANALOG_REWIND || action.GetID() == ACTION_ANALOG_FORWARD))
       {
         // calculate the speed based on the amount the button is held down

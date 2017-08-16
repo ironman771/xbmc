@@ -641,7 +641,9 @@ void CPeripheralCecAdapter::OnTvStandby(void)
     KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_QUIT);
     break;
   case LOCALISED_ID_PAUSE:
-    KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_MEDIA_PAUSE);
+		if (!g_application.m_pPlayer->IsPaused()) {      // ironman771 : bugfix pause only if not already paused!
+			KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_MEDIA_PAUSE);
+		}
     break;
   case LOCALISED_ID_STOP:
     KODI::MESSAGING::CApplicationMessenger::GetInstance().PostMsg(TMSG_MEDIA_STOP);

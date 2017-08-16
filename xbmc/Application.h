@@ -535,3 +535,7 @@ private:
 
 XBMC_GLOBAL_REF(CApplication,g_application);
 #define g_application XBMC_GLOBAL_USE(CApplication)
+
+#define MINSPEEDWITHAUDIO 0.8		//ironman771 : Constant MINSPEEDWITHAUDIO (MUST BE >= 0.1) (recomanded >= 0.5)
+#define MAXSPEEDWITHAUDIO 1.9		//ironman771 : Constant MAXSPEEDWITHAUDIO (MUST BE <= 3.0) (recomanded <= 2.0)
+const float FF_REW_steps[] = { -32, -16, -8, -4, -2, 1, 1.5, 1.9, 4, 8, 16, 32 };  //ironman771: Speed steps for FF and REW functions.

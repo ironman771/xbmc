@@ -6096,7 +6096,7 @@ std::string CGUIInfoManager::GetLabel(int info, int contextWindow, std::string *
     break;
   case PLAYER_PLAYSPEED:
       if(g_application.m_pPlayer->IsPlaying())
-        strLabel = StringUtils::Format("%.2f", g_application.m_pPlayer->GetPlaySpeed());
+				strLabel = StringUtils::Format("%.1fx", g_application.m_pPlayer->GetPlaySpeed());  // ironman771 : Correct Speed label
       break;
   case MUSICPLAYER_TITLE:
   case MUSICPLAYER_ALBUM:
@@ -7181,7 +7181,7 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
     case PLAYER_PLAYING:
       {
         float speed = g_application.m_pPlayer->GetPlaySpeed();
-        bReturn = (speed >= 0.75 && speed <= 1.55);
+				bReturn = (speed >= (MINSPEEDWITHAUDIO - 0.05) && speed <= (MAXSPEEDWITHAUDIO + 0.05));  // ironman771 : it was >= 0.75 && <= 1.55
       }
       break;
     case PLAYER_PAUSED:
@@ -7191,7 +7191,7 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
       bReturn = g_application.m_pPlayer->GetPlaySpeed() < 0;
       break;
     case PLAYER_FORWARDING:
-      bReturn = g_application.m_pPlayer->GetPlaySpeed() > 1.5;
+			bReturn = g_application.m_pPlayer->GetPlaySpeed() > (MAXSPEEDWITHAUDIO + 0.05);  // ironman771 : it was > 1.5
       break;
     case PLAYER_REWINDING_2x:
       bReturn = g_application.m_pPlayer->GetPlaySpeed() == -2;
@@ -7238,7 +7238,7 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
     case PLAYER_IS_TEMPO:
       {
         float speed = g_application.m_pPlayer->GetPlaySpeed();
-        bReturn = (speed >= 0.75 && speed <= 1.55 && speed != 1);
+				bReturn = (speed >= (MINSPEEDWITHAUDIO - 0.05) && speed <= (MAXSPEEDWITHAUDIO + 0.05) && speed != 1);   // ironman771 : it was (speed >= 0.75 && speed <= 1.55 && speed != 1)
       }
       break;
     case PLAYER_RECORDING:
@@ -7986,19 +7986,16 @@ std::string CGUIInfoManager::GetMultiInfoLabel(const GUIInfo &info, int contextW
   {
     return GetCurrentPlayTimeRemaining((TIME_FORMAT)info.GetData1());
   }
-  else if (info.m_info == PLAYER_FINISH_TIME)
-  {
-    CDateTime time;
-    CEpgInfoTagPtr currentTag(GetEpgInfoTag());
-    if (currentTag)
-      time = currentTag->EndAsLocalTime();
-    else
-    {
-      time = CDateTime::GetCurrentDateTime();
-      time += CDateTimeSpan(0, 0, 0, GetPlayTimeRemaining());
-    }
-    return LocalizeTime(time, (TIME_FORMAT)info.GetData1());
-  }
+	else if (info.m_info == PLAYER_FINISH_TIME)   // ironman771 : 'else if' rewrite to take into account playback speed [from L*** v18 code]
+	{
+		CDateTime time(CDateTime::GetCurrentDateTime());
+		int playTimeRemaining = GetPlayTimeRemaining();
+		float speed = g_application.m_pPlayer->GetPlaySpeed();
+		if (speed >= (MINSPEEDWITHAUDIO - 0.05) && speed <= (MAXSPEEDWITHAUDIO + 0.05))
+			playTimeRemaining /= speed;
+		time += CDateTimeSpan(0, 0, 0, playTimeRemaining);
+		return LocalizeTime(time, (TIME_FORMAT)info.GetData1());
+	}
   else if (info.m_info == PLAYER_START_TIME)
   {
     CDateTime time;
@@ -8016,7 +8013,7 @@ std::string CGUIInfoManager::GetMultiInfoLabel(const GUIInfo &info, int contextW
   {
     std::string strTime;
     float speed = g_application.m_pPlayer->GetPlaySpeed();
-    if (speed < 0.8 || speed > 1.5)
+		if (speed < (MINSPEEDWITHAUDIO - 0.05) || speed >(MAXSPEEDWITHAUDIO + 0.05))  // ironman771 : it was (speed < 0.8 || speed > 1.5)
       strTime = StringUtils::Format("%s (%ix)", GetCurrentPlayTime((TIME_FORMAT)info.GetData1()).c_str(), (int)speed);
     else
       strTime = GetCurrentPlayTime();
